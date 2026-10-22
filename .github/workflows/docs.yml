@@ -1,0 +1,29 @@
+name: Docs
+
+on:
+  pull_request:
+    branches: [develop]
+    paths: ["docs/**", "mkdocs.yml", "requirements/docs.txt", ".github/workflows/docs.yml"]
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  build:
+    name: Build site
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/docs.yml@d9129914d621ae75de47e6e558c11fd5875216b9 # v0.1.0
+
+  deploy:
+    name: Deploy site
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/docs.yml@d9129914d621ae75de47e6e558c11fd5875216b9 # v0.1.0
+    with:
+      deploy: true

@@ -1,0 +1,18 @@
+name: Dependabot auto-merge
+
+on:
+  pull_request:
+    branches: [develop]
+
+permissions: {}
+
+jobs:
+  auto-merge:
+    name: Enable auto-merge
+    if: github.actor == 'dependabot[bot]'
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/dependabot-auto-merge.yml@d9129914d621ae75de47e6e558c11fd5875216b9 # v0.1.0
+    secrets:
+      MERGE_QUEUE_TOKEN: ${{ secrets.MERGE_QUEUE_TOKEN }}

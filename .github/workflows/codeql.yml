@@ -1,0 +1,24 @@
+name: CodeQL
+
+on:
+  schedule:
+    - cron: "17 18 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  codeql:
+    name: CodeQL
+    permissions:
+      security-events: write
+      contents: read
+      issues: write
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/codeql.yml@d9129914d621ae75de47e6e558c11fd5875216b9 # v0.1.0
+    with:
+      languages: >-
+        [
+          {"language": "cpp", "build_mode": "manual", "preset": "linux-release", "vcpkg": true},
+          {"language": "python", "build_mode": "none"},
+          {"language": "actions", "build_mode": "none"}
+        ]
