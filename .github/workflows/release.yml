@@ -31,11 +31,11 @@ jobs:
           persist-credentials: false
       - name: Load the MSVC environment
         if: runner.os == 'Windows'
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-msvc-env@d9129914d621ae75de47e6e558c11fd5875216b9 # v0.1.0
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-msvc-env@1c6ccad42956ff561bf5443d6e7683db4f1491d1 # v0.1.0
       - name: Set up vcpkg
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@d9129914d621ae75de47e6e558c11fd5875216b9 # v0.1.0
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@1c6ccad42956ff561bf5443d6e7683db4f1491d1 # v0.1.0
       - name: Set up ccache
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-ccache@d9129914d621ae75de47e6e558c11fd5875216b9 # v0.1.0
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-ccache@1c6ccad42956ff561bf5443d6e7683db4f1491d1 # v0.1.0
         with:
           key: release-${{ matrix.name }}
       - name: Configure, build and install
@@ -56,7 +56,7 @@ jobs:
       - name: Sign the Windows binaries
         id: sign
         if: runner.os == 'Windows'
-        uses: iainchesworthlabs/icl-common-infra/actions/sign-windows@d9129914d621ae75de47e6e558c11fd5875216b9 # v0.1.0
+        uses: iainchesworthlabs/icl-common-infra/actions/sign-windows@1c6ccad42956ff561bf5443d6e7683db4f1491d1 # v0.1.0
         with:
           mode: ${{ vars.SIGN_WINDOWS || 'false' }}
           files: stage/bin/icl_template_cli.exe
@@ -88,7 +88,7 @@ jobs:
       contents: write
       id-token: write
       attestations: write
-    uses: iainchesworthlabs/icl-common-infra/.github/workflows/release-publish.yml@d9129914d621ae75de47e6e558c11fd5875216b9 # v0.1.0
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/release-publish.yml@1c6ccad42956ff561bf5443d6e7683db4f1491d1 # v0.1.0
     secrets:
       REPO_GPG_PRIVATE_KEY: ${{ secrets.REPO_GPG_PRIVATE_KEY }}
       REPO_GPG_PASSPHRASE: ${{ secrets.REPO_GPG_PASSPHRASE }}
