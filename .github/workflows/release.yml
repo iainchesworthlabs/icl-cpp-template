@@ -32,6 +32,8 @@ jobs:
       - name: Load the MSVC environment
         if: runner.os == 'Windows'
         uses: iainchesworthlabs/icl-common-infra/actions/setup-msvc-env@9ff839948f660e1409c74c4b60e85a16522a2650 # v0.1.0
+      - name: Set up CMake
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-cmake@9ff839948f660e1409c74c4b60e85a16522a2650 # v0.1.0
       - name: Set up vcpkg
         uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@9ff839948f660e1409c74c4b60e85a16522a2650 # v0.1.0
       - name: Set up ccache
