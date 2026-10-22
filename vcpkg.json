@@ -2,14 +2,16 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "icl-template",
   "version": "0.1.0",
-  "builtin-baseline": "20ceb8adbf0504d4b0d5e4058a32f9d4fc896391",
+  "builtin-baseline": "9e593bb18ea69cc5095e012465dcd675a822ed0d",
   "dependencies": [
     "catch2"
   ],
   "features": {
     "profiling": {
       "description": "Tracy profiler client",
-      "dependencies": [ "tracy" ]
+      "dependencies": [
+        "tracy"
+      ]
     }
   }
 }
