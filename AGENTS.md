@@ -4,8 +4,8 @@ This file applies to any automated contributor. Read it before changing the repo
 
 ## Working rules
 
-- Work on a branch named `<type>/<slug>` (`feat/`, `fix/`, `docs/`, `chore/`, `ci/`, `refactor/`, `test/`).
-  Never commit to `develop` or `main` directly.
+- Work on a branch named `<prefix>/<slug>` with the prefix `feature`, `bugfix`, `docs`, `chore` or `agent`, and a
+  lower-case slug with hyphens. Never commit to `develop` or `main` directly.
 - Commit with `git commit -s`. Write the subject in the imperative, 72 characters or fewer, and the body as a plain
   description of what changed and why.
 - Open pull requests against `develop`. Fill in the pull request template. Squash merge is the only method.
