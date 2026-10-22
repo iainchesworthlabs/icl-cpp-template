@@ -15,7 +15,7 @@ jobs:
     if: github.event_name == 'pull_request'
     permissions:
       contents: read
-    uses: iainchesworthlabs/icl-common-infra/.github/workflows/docs.yml@9ff839948f660e1409c74c4b60e85a16522a2650 # v0.1.0
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/docs.yml@91679aa5dcc903ad7028dcf0938cc323635ae605 # v0.1.2
 
   deploy:
     name: Deploy site
@@ -24,6 +24,6 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    uses: iainchesworthlabs/icl-common-infra/.github/workflows/docs.yml@9ff839948f660e1409c74c4b60e85a16522a2650 # v0.1.0
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/docs.yml@91679aa5dcc903ad7028dcf0938cc323635ae605 # v0.1.2
     with:
       deploy: true
