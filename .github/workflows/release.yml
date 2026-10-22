@@ -31,13 +31,13 @@ jobs:
           persist-credentials: false
       - name: Load the MSVC environment
         if: runner.os == 'Windows'
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-msvc-env@9ff839948f660e1409c74c4b60e85a16522a2650 # v0.1.0
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-msvc-env@6a7b2e79336c7d4d1c0528a02e48258c0be920fd # v0.1.1
       - name: Set up CMake
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-cmake@9ff839948f660e1409c74c4b60e85a16522a2650 # v0.1.0
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-cmake@6a7b2e79336c7d4d1c0528a02e48258c0be920fd # v0.1.1
       - name: Set up vcpkg
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@9ff839948f660e1409c74c4b60e85a16522a2650 # v0.1.0
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@6a7b2e79336c7d4d1c0528a02e48258c0be920fd # v0.1.1
       - name: Set up ccache
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-ccache@9ff839948f660e1409c74c4b60e85a16522a2650 # v0.1.0
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-ccache@6a7b2e79336c7d4d1c0528a02e48258c0be920fd # v0.1.1
         with:
           key: release-${{ matrix.name }}
       - name: Configure, build and install
@@ -58,7 +58,7 @@ jobs:
       - name: Sign the Windows binaries
         id: sign
         if: runner.os == 'Windows'
-        uses: iainchesworthlabs/icl-common-infra/actions/sign-windows@9ff839948f660e1409c74c4b60e85a16522a2650 # v0.1.0
+        uses: iainchesworthlabs/icl-common-infra/actions/sign-windows@6a7b2e79336c7d4d1c0528a02e48258c0be920fd # v0.1.1
         with:
           mode: ${{ vars.SIGN_WINDOWS || 'false' }}
           files: stage/bin/icl_template_cli.exe
@@ -90,7 +90,7 @@ jobs:
       contents: write
       id-token: write
       attestations: write
-    uses: iainchesworthlabs/icl-common-infra/.github/workflows/release-publish.yml@9ff839948f660e1409c74c4b60e85a16522a2650 # v0.1.0
+    uses: iainchesworthlabs/icl-common-infra/.github/workflows/release-publish.yml@6a7b2e79336c7d4d1c0528a02e48258c0be920fd # v0.1.1
     secrets:
       REPO_GPG_PRIVATE_KEY: ${{ secrets.REPO_GPG_PRIVATE_KEY }}
       REPO_GPG_PASSPHRASE: ${{ secrets.REPO_GPG_PASSPHRASE }}
