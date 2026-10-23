@@ -9,15 +9,20 @@ libstdc++), MSVC 14.51 (a newer toolset passes) and the newest Apple Clang the m
 
 ## Dependencies
 
-Dependencies come from vcpkg, using the `iainchesworthlabs/vcpkg` fork. The build finds it through
-`icl_resolve_vcpkg`, which looks for, in order:
+Dependencies come from vcpkg, using the `iainchesworthlabs/vcpkg` fork. The build finds the fork, and Qt for a
+project that uses it, through environment variables with the `ICL_` prefix, which are shared by every project of
+the organisation; a variable with the prefix `ICL_TEMPLATE_` overrides it for this project. The presets do not
+hard-code paths.
 
-1. `ICL_TEMPLATE_VCPKG_ROOT`, a checkout used as is.
-2. `ICL_VCPKG_STORE`, a directory shared by all projects (on this workstation `C:\repos\vcpkg`).
-3. `ICL_VCPKG_MIRROR`, a local mirror to clone from when the store is empty.
+| Variable | Meaning |
+|---|---|
+| `ICL_VCPKG_STORE` | A directory for vcpkg checkouts. The commit named by `builtin-baseline` in `vcpkg.json` gets its own checkout in it (`<store>/<first 12 characters>`), made once and reused by every project that pins the same commit. |
+| `ICL_VCPKG_MIRROR` | A clone of the fork to make those checkouts from. Default `<store>/mirror`, cloned on first use. |
+| `ICL_QT_ROOT` | A prebuilt Qt kit, for example `~/Qt/6.12.0/gcc_64`. `QT_ROOT_DIR` and `QTDIR` are the fallbacks. Qt is not a vcpkg dependency; install it with aqtinstall. |
+| `ICL_TEMPLATE_VCPKG_ROOT`, `ICL_TEMPLATE_QT_ROOT` | A vcpkg checkout or Qt kit used for this project only. |
 
-Qt, when a project uses it, is found through `ICL_TEMPLATE_QT_ROOT` and then `ICL_QT_ROOT`.
-Set these once in the shell profile; the presets do not hard-code paths.
+A configure with none of them set stops and lists the options. Set them once in the shell profile. A project with a
+Qt application pins the version in the `qt` key of `.github/toolchain-versions.json`; CI installs it from there.
 
 ## Presets
 
