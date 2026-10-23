@@ -5,6 +5,9 @@
    `python3 <icl-common-infra>/scripts/changelog_tool.py assemble --version 1.2.0 --date YYYY-MM-DD`.
 3. Tag the merge commit: `git tag -s v1.2.0 && git push origin v1.2.0`. The tag must point at a
    commit on `develop` and must be semantic version form; a suffix such as `-rc.1` makes a pre-release.
+   The version before the suffix must equal `VERSION` in `project()` in `CMakeLists.txt` and `version`
+   in `vcpkg.json`; the Release workflow stops at its first job when it does not, so change them in the
+   pull request that assembles the changelog.
 4. The Release workflow builds the Linux, macOS and Windows packages. Windows binaries are handled
    according to the `SIGN_WINDOWS` repository variable: `false`, `test` or `production`.
 5. The publish job waits for approval in the `release` environment, then writes `SHA512SUMS`,
