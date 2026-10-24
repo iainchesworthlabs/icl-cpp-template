@@ -33,5 +33,5 @@ The public key is `docs/signing-key.asc`. Its fingerprint is published in `SECUR
 ## Windows test signing
 
 Test-signed files carry `-testsigned` in the name and are accepted only on machines that trust the
-personal CA. They attach to pre-releases and workflow artifacts only. See
-`docs/test-signing.md` in `icl-common-infra`.
+personal CA. Until a production certificate exists they may go on any release, final or
+pre-release, and the notes say so. See `docs/test-signing.md` in `icl-common-infra`.
