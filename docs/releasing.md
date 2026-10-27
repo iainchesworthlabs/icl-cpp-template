@@ -13,7 +13,10 @@
    in `vcpkg.json`; the Release workflow stops at its first job when it does not, so change them in the
    pull request that assembles the changelog.
 4. The Release workflow builds the Linux, macOS and Windows packages. Windows binaries are handled
-   according to the `SIGN_WINDOWS` repository variable: `false`, `test` or `production`.
+   according to the `SIGN_WINDOWS` repository variable: `false`, `test` or `production`. The Linux package must
+   start on Ubuntu 24.04 (glibc 2.39): the `check-glibc-floor` step fails the job when something in it needs a newer
+   glibc, which a build on the newest runner can do with a single function. A project that needs a higher floor passes
+   `allowed` and says why here.
 5. The publish job waits for approval in the `release` environment, then writes `SHA512SUMS`,
    detached GPG signatures, an SPDX SBOM and build provenance, creates the GitHub Release, and for a
    final release fast-forwards `main` to the tag.
@@ -35,3 +38,11 @@ The public key is `docs/signing-key.asc`. Its fingerprint is published in `SECUR
 Test-signed files carry `-testsigned` in the name and are accepted only on machines that trust the
 personal CA. Until a production certificate exists they may go on any release, final or
 pre-release, and the notes say so. See `docs/test-signing.md` in `icl-common-infra`.
+
+## Phones and tablets
+
+A project that builds for Android or iOS follows section 7.7 of the standard in `icl-common-infra`, and signs and
+distributes an iOS build with the shared actions described in `docs/ios-signing.md` there: TestFlight for a public
+repository (the repository variable `SIGN_IOS_UPLOAD`), with the certificate and the App Store Connect key as organisation
+secrets and the provisioning profile as the repository's own. An ad-hoc IPA lists the devices' identifiers and so belongs
+only in a private repository. Neither a release asset nor a workflow artifact is private in a public one.

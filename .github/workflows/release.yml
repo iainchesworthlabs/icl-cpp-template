@@ -98,6 +98,13 @@ jobs:
             cmake --build --preset "$PRESET"
             cmake --install "build/$PRESET" --prefix stage
           fi
+      # The package is built on the newest runner, which links against the newest glibc: a package that starts here may not
+      # start on Ubuntu 24.04 (glibc 2.39) or Debian 13. The action fails when a program or library in it needs more.
+      - name: Check the glibc the package needs
+        if: runner.os == 'Linux'
+        uses: iainchesworthlabs/icl-common-infra/actions/check-glibc-floor@0b66ebe4f1ac93b75323b3065777b4dd3f287cdf # v0.1.16 plus #34
+        with:
+          folder: stage
       - name: Sign the Windows binaries
         id: sign
         if: runner.os == 'Windows'
