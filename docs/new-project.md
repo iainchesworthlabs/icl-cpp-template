@@ -14,5 +14,8 @@
 
 6. Add the secrets listed in `icl-common-infra/docs/secrets.md`: `MERGE_QUEUE_TOKEN` as a Dependabot
    secret, and the release secrets as organisation secrets shared with the repository.
-7. Open the first pull request and check that **CI Status** and **Scan dependency diff** report.
+7. If the project ships for iPhone and iPad, follow "iOS and TestFlight" in `docs/releasing.md`: `instantiate.py` has set
+   the bundle identifier (`com.iainchesworthlabs.<name without underscores>`); the Apple-side steps and the repository
+   variable `SIGN_IOS_UPLOAD` are the owner's. Without them the iOS job of the release does not run.
+8. Open the first pull request and check that **CI Status** and **Scan dependency diff** report.
    The develop ruleset already requires both.

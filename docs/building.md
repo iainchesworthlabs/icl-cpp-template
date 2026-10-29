@@ -40,8 +40,18 @@ ctest --preset linux-debug
 | `linux-tsan` | ThreadSanitizer |
 | `linux-coverage` | Instrumented build for gcovr |
 | `macos-release`, `windows-msvc-release`, `windows-msvc-asan` | Platform builds |
+| `ios-release` | The iPhone and iPad application (`apps/ios`), unsigned, on a Mac with Xcode; no tests and no command-line program |
 
 Sanitizers, Tracy, coverage and fuzzing exclude each other. The configure step stops with a
 message when two are enabled.
+
+### iOS
+
+`cmake --preset ios-release` needs a vcpkg checkout at the baseline of `vcpkg.json` (`VCPKG_ROOT`; CI's `setup-vcpkg` action
+sets it) and Xcode. It builds `build/ios-release/icl-template.app` without signing. Three cache variables make a signed
+build, which is the release workflow's (`docs/releasing.md`, "iOS and TestFlight"): `ICL_TEMPLATE_IOS_SIGNING_TEAM` and
+`ICL_TEMPLATE_IOS_SIGNING_PROFILE` go together (CMake stops when only one is given), and `ICL_TEMPLATE_IOS_BUILD_NUMBER`
+sets `CFBundleVersion`. The identifier is `ICL_TEMPLATE_APPLICATION_ID` in `CMakeLists.txt`. Check the bundle with
+`apps/ios/packaging/verify_app.sh <app> --bundle-id <id> --executable icl-template`.
 
 Put personal settings in `CMakeUserPresets.json`, which is ignored by git.

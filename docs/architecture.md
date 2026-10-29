@@ -7,6 +7,8 @@ libs/core/            library: public headers, sources, tests
     platform/<os>/    one directory per platform, chosen by CMake
   tests/
 apps/cli/             command-line application and its integration tests
+apps/ios/             iPhone and iPad application: a one-screen UIKit sample and its packaging
+  packaging/          Info.plist.in, asset catalogue (icon, launch colour), verify_app.sh
 cmake/icl/            vendored CMake modules from icl-common-infra (do not edit)
 tools/                project scripts, baselines and coverage floors
 ```
