@@ -7,7 +7,8 @@
 --name is lower snake case. It replaces icl_template in namespaces, targets, directories and
 include paths; MY_PROJECT replaces ICL_TEMPLATE (CMake options and the variable prefix); my-project
 replaces icl-template (the vcpkg name and archive names). --repo is the name of the GitHub repository
-when it differs from my-project; it replaces icl-cpp-template in URLs.
+when it differs from my-project; it replaces icl-cpp-template in URLs. The iOS bundle identifier
+com.iainchesworthlabs.icltemplate becomes com.iainchesworthlabs.myproject.
 
 The script also rewrites what describes the template: the README and the documentation index become
 short stubs for the new project, docs/new-project.md is removed, the description and the Pages address go
@@ -105,7 +106,11 @@ def main() -> int:
     snake, upper, kebab = args.name, args.name.upper(), args.name.replace("_", "-")
     repo = args.repo or kebab
     description = args.description or f"{kebab} project"
-    pairs = [("icl-cpp-template", repo), ("icl_template", snake), ("ICL_TEMPLATE", upper), ("icl-template", kebab)]
+    # The bundle identifier is com.iainchesworthlabs.<name without separators>, as the other applications' are. The display
+    # name is the one under the icon; the owner may want a nicer one.
+    pairs = [("com.iainchesworthlabs.icltemplate", f"com.iainchesworthlabs.{snake.replace('_', '')}"),
+             ("ICL Template", snake.replace("_", " ").title()),
+             ("icl-cpp-template", repo), ("icl_template", snake), ("ICL_TEMPLATE", upper), ("icl-template", kebab)]
 
     changed = 0
     for path in files():

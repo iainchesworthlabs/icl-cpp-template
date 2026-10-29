@@ -15,6 +15,17 @@ project(icl_template
 
 set(ICL_PROJECT_PREFIX ICL_TEMPLATE)
 
+# The application id on Android and the bundle identifier on iOS: com.iainchesworthlabs.<app>, the App ID registered with
+# Apple and what the provisioning profile names. Defined once; the iOS workflows repeat it as BUNDLE_ID and
+# apps/ios/packaging/verify_app.sh checks that the two agree.
+set(ICL_TEMPLATE_APPLICATION_ID "com.iainchesworthlabs.icltemplate")
+set(ICL_TEMPLATE_DISPLAY_NAME "ICL Template")
+
+# The iOS application's code is Objective-C++ (apps/ios).
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    enable_language(OBJCXX)
+endif()
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -30,6 +41,7 @@ include(IclPlatform)
 
 option(ICL_TEMPLATE_BUILD_TESTS "Build the tests" ON)
 option(ICL_TEMPLATE_BUILD_CLI "Build the command-line application" ON)
+option(ICL_TEMPLATE_BUILD_IOS_APP "Build the iPhone and iPad application (iOS only)" ON)
 
 if(ICL_TEMPLATE_BUILD_TESTS)
     include(CTest)
@@ -41,4 +53,8 @@ add_subdirectory(libs/core)
 
 if(ICL_TEMPLATE_BUILD_CLI)
     add_subdirectory(apps/cli)
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS" AND ICL_TEMPLATE_BUILD_IOS_APP)
+    add_subdirectory(apps/ios)
 endif()

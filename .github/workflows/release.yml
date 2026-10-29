@@ -10,6 +10,11 @@ on:
   # Builds and uploads the packages from a branch without publishing, to try the packaging
   # (`gh workflow run release.yml --ref <branch>`). The version check and the publish job run for tags only.
   workflow_dispatch:
+    inputs:
+      upload_testflight:
+        description: "Upload the iOS build to TestFlight (a manual run only validates it with Apple; a tag uploads)"
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -133,10 +138,150 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
+  # The iPhone and iPad application, signed with the Apple Distribution certificate (organisation secrets) and this
+  # repository's own App Store provisioning profile, through the shared signing actions (docs/ios-signing.md in
+  # icl-common-infra), and sent to TestFlight. It runs only when the repository variable SIGN_IOS_UPLOAD is `true`; with
+  # it unset the release is made without iOS. The build number is the number of this run. A tag, or a manual run with
+  # `upload_testflight`, uploads the build; any other run has Apple validate it and stops there. The IPA is a workflow
+  # artifact for 7 days and is never put on the release: Testers install from the TestFlight app (docs/releasing.md).
+  ios:
+    name: Package (iOS)
+    needs: version
+    if: ${{ !cancelled() && (needs.version.result == 'success' || needs.version.result == 'skipped') && vars.SIGN_IOS_UPLOAD == 'true' }}
+    runs-on: macos-26
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      # ICL_TEMPLATE_APPLICATION_ID in CMakeLists.txt; the check of the IPA fails if the two differ.
+      BUNDLE_ID: com.iainchesworthlabs.icltemplate
+      EXECUTABLE: icl-template
+      VCPKG_DISABLE_METRICS: "1"
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The shared action names the secret that is missing, before anything else is downloaded.
+      - name: Import the certificate and the provisioning profile
+        id: signing
+        uses: iainchesworthlabs/icl-common-infra/actions/import-ios-signing@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        with:
+          certificate-base64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+          certificate-password: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          profile-base64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          bundle-id: ${{ env.BUNDLE_ID }}
+          method: app-store
+
+      - name: Set up vcpkg
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+
+      - name: Set up CMake
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-cmake@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+
+      # Signed for the application alone (apps/ios/CMakeLists.txt says why). CMake makes no Xcode scheme unless asked,
+      # and `xcodebuild archive` takes only a scheme.
+      - name: Configure (signed)
+        shell: bash
+        env:
+          TEAM_ID: ${{ steps.signing.outputs.team-id }}
+          PROFILE_NAME: ${{ steps.signing.outputs.profile-name }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: >
+          cmake --preset ios-release
+          -DCMAKE_XCODE_GENERATE_SCHEME=ON
+          -DICL_TEMPLATE_IOS_BUILD_NUMBER="$BUILD_NUMBER"
+          -DICL_TEMPLATE_IOS_SIGNING_TEAM="$TEAM_ID"
+          -DICL_TEMPLATE_IOS_SIGNING_PROFILE="$PROFILE_NAME"
+
+      - name: Name the package
+        id: name
+        shell: bash
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          label=dry-run
+          if [ "$REF_TYPE" = tag ]; then label="$REF_NAME"; fi
+          project="$(find build/ios-release -maxdepth 1 -name '*.xcodeproj' | head -n 1)"
+          [ -n "$project" ] || { echo "::error::CMake made no .xcodeproj under build/ios-release"; exit 1; }
+          echo "project=$project" >> "$GITHUB_OUTPUT"
+          echo "ipa=dist-ios/icl-template-$label-ios-appstore.ipa" >> "$GITHUB_OUTPUT"
+          echo "version=${label#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Archive and export the IPA
+        id: export
+        uses: iainchesworthlabs/icl-common-infra/actions/export-ios-ipa@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        with:
+          project: ${{ steps.name.outputs.project }}
+          scheme: icl_template_ios
+          bundle-id: ${{ env.BUNDLE_ID }}
+          team-id: ${{ steps.signing.outputs.team-id }}
+          profile-name: ${{ steps.signing.outputs.profile-name }}
+          method: app-store
+          output: ${{ steps.name.outputs.ipa }}
+
+      # The signed IPA, opened as a device would: identifier, version, the icon, no permission text, arm64, a valid
+      # signature, and an App Store profile for this identifier.
+      - name: Check the IPA
+        shell: bash
+        env:
+          IPA: ${{ steps.export.outputs.ipa }}
+          VERSION: ${{ steps.name.outputs.version }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          set -euo pipefail
+          args=(--bundle-id "$BUNDLE_ID" --executable "$EXECUTABLE" --signed --store)
+          if [ "$REF_TYPE" = tag ]; then args+=(--version "${VERSION%%-*}"); fi
+          apps/ios/packaging/verify_app.sh "$IPA" "${args[@]}"
+
+      # Apple's own check of the icon, the property list, the signature and the privacy declarations; and, for a tag or a
+      # manual run that asks, the upload to TestFlight.
+      - name: Validate with Apple, and upload to TestFlight
+        uses: iainchesworthlabs/icl-common-infra/actions/upload-testflight@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        with:
+          ipa: ${{ steps.export.outputs.ipa }}
+          key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          issuer-id: ${{ secrets.APPSTORE_API_ISSUER_ID }}
+          private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          validate-only: ${{ github.ref_type != 'tag' && inputs.upload_testflight != true }}
+
+      - name: Remove the signing keychain and profile
+        if: always()
+        uses: iainchesworthlabs/icl-common-infra/actions/import-ios-signing@e15f14812b7446517252d6677abf755698d57986 # v0.1.18
+        with:
+          remove: "true"
+
+      # Named ios-appstore, not release-*: only an artifact named release-* goes to the release (the publish job's pattern).
+      - name: Upload
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ios-appstore
+          retention-days: 7
+          path: dist-ios/*
+          if-no-files-found: error
+
+      - name: Say how to install it
+        shell: bash
+        env:
+          UPLOADED: ${{ github.ref_type == 'tag' || inputs.upload_testflight == true }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          {
+            echo "### iOS build for TestFlight"
+            if [ "$UPLOADED" = true ]; then
+              echo "Uploaded as build $BUILD_NUMBER. Apple processes it for a few minutes; then it is in the TestFlight app for the internal testers."
+            else
+              echo "Validated by Apple, not uploaded. Run the workflow with \`upload_testflight\` (or push a tag) to upload build $BUILD_NUMBER."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
   publish:
     name: Publish
-    needs: package
-    if: github.ref_type == 'tag'
+    needs: [package, ios]
+    if: ${{ !cancelled() && github.ref_type == 'tag' && needs.package.result == 'success' && (needs.ios.result == 'success' || needs.ios.result == 'skipped') }}
     permissions:
       contents: write
       id-token: write
