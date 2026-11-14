@@ -2,8 +2,9 @@
 
 1. Create the repository from this template in the `iainchesworthlabs` organisation.
 2. Clone it and run `python3 tools/instantiate.py --name my_project`. Review the diff.
-3. Run `python3 tools/ci/sync_cmake.py --infra <icl-common-infra checkout>` if the pinned
-   commit has moved since the template was cut.
+3. Check that the project pins the newest `icl-common-infra` tag (`gh api repos/iainchesworthlabs/icl-common-infra/tags --jq '.[0].name'`
+   against the comment on the `uses:` lines). If a newer tag exists, run
+   `python3 tools/ci/repin.py --infra <icl-common-infra checkout at that tag> --version <tag>` and open the change as its own pull request.
 4. Edit `.github/repo-settings.json` (topics) and `.github/CODEOWNERS`.
 5. Apply the repository settings, rulesets and labels with a dry run first:
 

@@ -1,0 +1,1 @@
+**The template pins the newest icl-common-infra tag.** The workflows and `cmake/icl` move from v0.1.8 to v0.1.25, and the documentation says a project always tracks the newest tag and moves with `tools/ci/repin.py` in its own pull request.

@@ -37,6 +37,7 @@ This file applies to any automated contributor. Read it before changing the repo
 | A CMake option or preset | `docs/building.md` |
 | Test labels or phases | `docs/testing.md` |
 | A workflow in `.github/workflows` | `docs/ci.md`; pin every `uses:` to a full SHA with a version comment |
+| The `icl-common-infra` pin | Use `tools/ci/repin.py` with the newest tag, in its own pull request. It moves the `uses:` lines and `cmake/icl` together. Never edit the SHAs by hand and never add a commit to a Dependabot branch |
 | Which paths need a build | `.github/ci/plan.json` |
 | Coverage for a component | `tools/coverage-floors.json` (raise it when coverage rose) |
 | Files that add a preprocessor directive | `tools/preprocessor-baseline.json` only through `--update-baseline` when the count fell |
