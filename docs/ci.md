@@ -1,8 +1,11 @@
 # Continuous integration
 
 The workflows in `.github/workflows/` call reusable workflows in `icl-common-infra`, pinned by
-commit SHA. Dependabot proposes the SHA bump; the pull request also needs
-`tools/ci/sync_cmake.py` run, because the CMake modules are vendored.
+commit SHA, always at the newest `icl-common-infra` tag (`gh api repos/iainchesworthlabs/icl-common-infra/tags --jq '.[0].name'`).
+A move to a new tag is one pull request made with `tools/ci/repin.py --infra <checkout at the tag> --version <tag>`, which
+changes every `uses:` line and the vendored CMake modules in `cmake/icl` together. Dependabot proposes the same bump, but
+do not add a commit to its branch: GitHub then adds a second `Co-authored-by` line to the squash message and the commit
+text check rejects it in the merge queue. Close the Dependabot pull request and open the `repin.py` one instead.
 
 ## What runs
 
