@@ -60,10 +60,10 @@ jobs:
       # The vcpkg toolchain is the toolchain file of every preset, iOS's included. The manifest has no dependency for a
       # device (the tests are not built there).
       - name: Set up vcpkg
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@7298129e789aab3e34c523aace5c699dc24e0001 # v0.1.25
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-vcpkg@7343cae74fb2028b995b39cdec14a58b0f37f2e8 # v0.1.30
 
       - name: Set up CMake
-        uses: iainchesworthlabs/icl-common-infra/actions/setup-cmake@7298129e789aab3e34c523aace5c699dc24e0001 # v0.1.25
+        uses: iainchesworthlabs/icl-common-infra/actions/setup-cmake@7343cae74fb2028b995b39cdec14a58b0f37f2e8 # v0.1.30
 
       - name: Show the toolchain
         shell: bash
